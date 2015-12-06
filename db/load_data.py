@@ -34,3 +34,34 @@ DATA_FILES = (
     "-Public-Use-Files/SynPUFs/Downloads"
     "/DE1_0_2010_Beneficiary_Summary_File_Sample_1.zip",
 )
+
+
+def download_zip(uri):
+    """
+    Download an zipped data file and return the unzipped file.
+
+    Parameters
+    ----------
+    uri : str
+        The URI for the .zip file.
+
+    Returns
+    -------
+    zipfile.ZipExtFile
+        A file-like object holding the file contents. This should be read like
+        any other file, with one of `read()`, `readline()`, or `readlines()`
+        methods::
+
+            for line in f.readlines():
+                print line
+    """
+    r = requests.get(uri)
+    if r.status_code == requests.codes.ok:
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        csv_file = z.namelist()[0]
+        f = z.open(csv_file)
+    else:
+        raise ValueError(
+            "Failed to get {0}. Returned status code {1}.".format(uri,
+                                                                  r.status_code))
+    return f
