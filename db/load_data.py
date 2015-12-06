@@ -23,7 +23,8 @@ TABLE_NAME = "medicare_beneficiary_sample_2010"
 
 # Parse arguments
 argparser = argparse.ArgumentParser(
-    description="Load CMS 2010 summary beneficiary data into Postgres.",
+    description="Load synthetic CMS 2010 summary beneficiary data into "
+                "Postgres.",
     epilog="example: python load_data.py --host localhost --dbname Nikhil "
            "--user Nikhil")
 argparser.add_argument("--host", required=True, help="location of database")
