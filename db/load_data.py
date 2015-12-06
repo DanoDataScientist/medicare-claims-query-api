@@ -243,6 +243,33 @@ def prep_csv(csv_file):
     return prepped_filename
 
 
+def alter_col_types():
+    """
+    Alter column types of the table to better suit the data.
+
+    For example, convert the character-represented-dates to type DATE.
+    """
+    con, cur = cursor_connect()
+    try:
+        # Get column names so you can index the 2th and 3th columns
+        sql = "SELECT * FROM {0} LIMIT 0;".format(TABLE_NAME)
+        cur.execute(sql)
+        colnames = [desc[0] for desc in cur.description]
+        cols = (colnames[1], colnames[2])  # DO-Birth and DO-Death
+        for col in cols:
+            sql = """
+            ALTER TABLE {0} ALTER COLUMN {1} TYPE DATE
+            USING to_date({1}, 'YYYYMMDD');
+            """.format(TABLE_NAME, col)
+            cur.execute(sql)
+    except psycopg2.Error:
+        raise
+    else:
+        con.commit()
+        cur.close()
+        con.close()
+
+
 if __name__ == '__main__':
     # Create the database's DNS to connect with using psycopg2
     db_dsn = "host={0} dbname={1} user={2} password={3}".format(
