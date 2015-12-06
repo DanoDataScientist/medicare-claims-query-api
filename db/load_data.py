@@ -286,7 +286,7 @@ def verify_data_load():
         sql = "SELECT COUNT(*) FROM {0}".format(TABLE_NAME)
         cur.execute(sql)
         result = cur.fetchone()
-        num_rows = result['count']
+        num_rows = result[0]
     except psycopg2.Error:
         raise
     else:
