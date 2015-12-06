@@ -65,3 +65,27 @@ def download_zip(uri):
             "Failed to get {0}. Returned status code {1}.".format(uri,
                                                                   r.status_code))
     return f
+
+
+def cursor_connect(db_dsn, cursor_factory=None):
+    """
+    Connects to the DB and returns the connection and cursor, ready to use.
+
+    Parameters
+    ----------
+    db_dsn: str
+        A string representing the database DSN to connect to.
+    cursor_factory : psycopg2.extras
+        An optional psycopg2 cursor type, e.g. DictCursor.
+
+    Returns
+    -------
+    tuple
+        A tuple of (psycopg2 connection, psycopg2 cursor).
+    """
+    con = psycopg2.connect(dsn=db_dsn)
+    if not cursor_factory:
+        cur = con.cursor()
+    else:
+        cur = con.cursor(cursor_factory=cursor_factory)
+    return con, cur
