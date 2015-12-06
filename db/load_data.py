@@ -277,6 +277,27 @@ def alter_col_types():
         con.close()
 
 
+def verify_data_load():
+    """
+    Verify that all the data was loaded into the DB.
+    """
+    con, cur = cursor_connect()
+    try:
+        sql = "SELECT COUNT(*) FROM {0}".format(TABLE_NAME)
+        cur.execute(sql)
+        result = cur.fetchone()
+        num_rows = result['count']
+    except psycopg2.Error:
+        raise
+    else:
+        cur.close()
+        con.close()
+        expected_row_count = 2255098
+        if num_rows != expected_row_count:
+            raise AssertionError("{0} rows in DB. Should be {1}".format(
+                                 num_rows, expected_row_count))
+        print("Data load complete.")
+
 if __name__ == '__main__':
     # Create the database's DNS to connect with using psycopg2
     db_dsn = "host={0} dbname={1} user={2} password={3}".format(
