@@ -313,8 +313,13 @@ if __name__ == '__main__':
             headers = medicare_csv.readline().replace('"', "").split(",")
             print("Downloaded CSV contains {0} headers.".format(len(headers)))
             prepped_csv = prep_csv(medicare_csv)
-            load_csv(prepped_csv)
+        print("Loading data into database '{0}' at '{1}'.".format(
+              args.dbname, args.host))
+        load_csv(prepped_csv)
+        print("Altering columns.")
         alter_col_types()
+        print("Verifying data load.")
+        verify_data_load()
     except:
         raise
     finally:
