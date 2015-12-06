@@ -111,3 +111,17 @@ def drop_table(db_dsn):
         con.commit()
         cur.close()
         con.close()
+
+
+if __name__ == '__main__':
+    # Create the database's DNS to connect with using psycopg2
+    db_dsn = "host={0} dbname={1} user={2} password={3}".format(
+        args.host, args.dbname, args.user, args.password
+    )
+    # Delete the database if it exists
+    drop_table(db_dsn)
+    for uri in DATA_FILES:
+        f = download_zip(uri)
+        headers = f.readline().replace('"', "").split(",")
+        print("Downloaded file, "
+              "contains {0} column headers.".format(len(headers)))
