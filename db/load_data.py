@@ -62,8 +62,8 @@ def download_zip(uri):
         f = z.open(csv_file)
     else:
         raise ValueError(
-            "Failed to get {0}. Returned status code {1}.".format(uri,
-                                                                  r.status_code))
+            "Failed to get {0}. "
+            "Returned status code {1}.".format(uri, r.status_code))
     return f
 
 
