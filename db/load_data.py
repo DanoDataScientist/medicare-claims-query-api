@@ -112,13 +112,82 @@ def drop_table(db_dsn):
         con.close()
 
 
+def create_table(db_dsn):
+    """
+    Create the table given by TABLE_NAME.
+
+    Parameters
+    ----------
+    db_dsn: str
+        A string representing the database DSN to connect to.
+    """
+    con, cur = cursor_connect(db_dsn)
+    # Create new column types to hold sex and race
+    try:
+        # Create enumerated types (like factors in R) to use as column types
+        cur.execute("CREATE TYPE sex AS ENUM ('male', 'female');")
+        cur.execute("CREATE TYPE race as ENUM ('white', 'black', 'others', "
+                    "'hispanic');")
+    except psycopg2.ProgrammingError as e:
+        # If the types already exist just continue on
+        if "already exists" in e.message:
+            con, cur = cursor_connect(db_dsn)
+        else:
+            cur.close()
+            con.close()
+            raise
+    try:
+        sql = ("CREATE TABLE {0} ("
+               "desynpuf_id CHAR(16) UNIQUE, "
+               "bene_birth_dt DATE, "
+               "bene_death_dt DATE, "
+               "bene_sex_ident_cd sex, "
+               "bene_race_cd race, "
+               "bene_esrd_ind BOOLEAN, "
+               "sp_state_code INT, "
+               "bene_county_cd INT, "
+               "bene_hi_cvrage_tot_mons INT, "
+               "bene_smi_cvrage_tot_mons INT, "
+               "bene_hmo_cvrage_tot_mons INT, "
+               "plan_cvrg_mos_num INT, "
+               "sp_alzhdmta BOOLEAN, "
+               "sp_chf BOOLEAN, "
+               "sp_chrnkidn BOOLEAN, "
+               "sp_cncr BOOLEAN, "
+               "sp_copd BOOLEAN, "
+               "sp_depressn BOOLEAN, "
+               "sp_diabetes BOOLEAN, "
+               "sp_ischmcht BOOLEAN, "
+               "sp_osteoprs BOOLEAN, "
+               "sp_ra_oa BOOLEAN, "
+               "sp_strketia BOOLEAN, "
+               "medreimb_ip INT, "
+               "benres_ip INT, "
+               "pppymt_ip INT, "
+               "medreimb_op INT, "
+               "benres_op INT, "
+               "pppymt_op INT, "
+               "medreimb_car INT, "
+               "benres_car INT, "
+               "pppymt_car INT"
+               ");".format(TABLE_NAME))
+        cur.execute(sql)
+    except psycopg2.Error:
+        raise
+    else:
+        con.commit()
+        cur.close()
+        con.close()
+
 if __name__ == '__main__':
     # Create the database's DNS to connect with using psycopg2
     db_dsn = "host={0} dbname={1} user={2} password={3}".format(
         args.host, args.dbname, args.user, args.password
     )
-    # Delete the database if it exists
+    # Delete the table and recreate it if it exists
     drop_table(db_dsn)
+    create_table(db_dsn)
+    # Download the data and load it into the DB
     for uri in DATA_FILES:
         f = download_zip(uri)
         headers = f.readline().replace('"', "").split(",")
