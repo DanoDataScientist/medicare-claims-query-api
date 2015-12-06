@@ -12,6 +12,8 @@ from __future__ import unicode_literals
 import argparse
 import io
 import zipfile
+import csv
+import os
 
 import psycopg2
 import requests
@@ -139,8 +141,8 @@ def create_table(db_dsn):
     try:
         sql = ("CREATE TABLE {0} ("
                "desynpuf_id CHAR(16) UNIQUE, "
-               "bene_birth_dt DATE, "
-               "bene_death_dt DATE, "
+               "bene_birth_dt CHAR(8), "  # These are converted to DATE later
+               "bene_death_dt CHAR(8), "  # These are converted to DATE later
                "bene_sex_ident_cd sex, "
                "bene_race_cd race, "
                "bene_esrd_ind BOOLEAN, "
@@ -179,6 +181,80 @@ def create_table(db_dsn):
         cur.close()
         con.close()
 
+
+def load_csv(csv_file):
+    """
+    Load data from a CSV file or file-like object into the database.
+
+    Parameters
+    ----------
+    csv_file : str, unicode
+        A file of file-like object returned from download_zip(). The file must
+        have both `read()` and `readline()` methods.
+
+    """
+    con, cur = cursor_connect(db_dsn)
+    try:
+        with open(csv_file, 'r') as f:
+            cur.copy_from(f, TABLE_NAME, sep=',', null='')
+    except psycopg2.Error:
+        raise
+    else:
+        con.commit()
+        cur.close()
+        con.close()
+
+
+def prep_csv(csv_file):
+    """
+    Modifies the CMS Medicare data to get it ready to load in the DB.
+
+    Important modifications are transforming character columns to 0 and 1 for
+    import into BOOLEAN Postgres columns.
+
+    Parameters
+    ----------
+    csv_file : zipfile.ZipExtFile
+        A CSV-like object returned from download_zip().
+
+    Returns
+    -------
+    str
+        Path to a prepared CSV file on disk.
+    """
+    prepped_filename = 'prepped_medicare.csv'
+    reader = csv.reader(csv_file)
+    with open(prepped_filename, 'a') as f:
+        writer = csv.writer(f)
+        for row in reader:
+            # Transform 'Y' for 'yes' into 1, for boolean
+            if row[5] == 'Y':
+                row[5] = '1'.encode('ascii')
+            # Transform sex into factors
+            sex = {'1': 'male'.encode('ascii'), '2': 'female'.encode('ascii')}
+            row[3] = sex[row[3]]
+            # Transform race into factors (note: there is no '4' value...)
+            race = {
+                '1': 'white'.encode('ascii'),
+                '2': 'black'.encode('ascii'),
+                '3': 'others'.encode('ascii'),
+                '5': 'hispanic'.encode('ascii')
+            }
+            row[4] = race[row[4]]
+            # Transform 'boolean' 1 and 2 into 0 and 1, for columns 12 - 22
+            boolean_transform = {
+                '1': '1'.encode('ascii'),
+                '2': '0'.encode('ascii')
+            }
+            for i in range(12, 23):
+                row[i] = boolean_transform[row[i]]
+            # Transform strings to floats to ints
+            for i in range(23, 32):
+                row[i] = str(int(float(row[i]))).encode('ascii')
+            writer.writerow(row)
+    return prepped_filename
+
+
 if __name__ == '__main__':
     # Create the database's DNS to connect with using psycopg2
     db_dsn = "host={0} dbname={1} user={2} password={3}".format(
@@ -188,8 +264,18 @@ if __name__ == '__main__':
     drop_table(db_dsn)
     create_table(db_dsn)
     # Download the data and load it into the DB
-    for uri in DATA_FILES:
-        f = download_zip(uri)
-        headers = f.readline().replace('"', "").split(",")
-        print("Downloaded file, "
-              "contains {0} column headers.".format(len(headers)))
+    try:
+        for uri in DATA_FILES:
+            medicare_csv = download_zip(uri)
+            headers = medicare_csv.readline().replace('"', "").split(",")
+            print("Downloaded CSV contains {0} headers.".format(len(headers)))
+            prepped_csv = prep_csv(medicare_csv)
+            load_csv(prepped_csv)
+    except:
+        raise
+    finally:
+        try:
+            os.remove(prepped_csv)
+        except:
+            pass
+
