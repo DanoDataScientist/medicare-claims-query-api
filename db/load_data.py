@@ -10,10 +10,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import argparse
-import io
-import zipfile
 import csv
+import io
 import os
+import urlparse
+import zipfile
 
 import psycopg2
 import requests
@@ -31,11 +32,17 @@ argparser.add_argument("--user", required=True, help="user to access database")
 argparser.add_argument("--password", required=False, help="password to connect")
 args = argparser.parse_args()
 
-DATA_FILES = (
+# Declare URLs of CSV files to download
+base_url = (
     "https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable"
-    "-Public-Use-Files/SynPUFs/Downloads"
-    "/DE1_0_2010_Beneficiary_Summary_File_Sample_1.zip",
+    "-Public-Use-Files/SynPUFs/Downloads/some_file.zip"
 )
+# Prep base filename, with 'XX' to be replaced by a two-digit number indicating
+# which file to download.
+base_filename = "DE1_0_2010_Beneficiary_Summary_File_Sample_XX.zip"
+DATA_FILES = [
+    urlparse.urljoin(base_url, base_filename.replace('XX', '{0}').format(i))
+    for i in range(1, 21)]
 
 
 def download_zip(uri):
