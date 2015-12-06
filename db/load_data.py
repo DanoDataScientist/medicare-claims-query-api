@@ -44,7 +44,7 @@ def download_zip(uri):
 
     Parameters
     ----------
-    uri : str
+    uri : str, unicode
         The URI for the .zip file.
 
     Returns
