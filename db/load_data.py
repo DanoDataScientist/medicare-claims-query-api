@@ -304,11 +304,14 @@ if __name__ == '__main__':
         args.host, args.dbname, args.user, args.password
     )
     # Delete the table and recreate it if it exists
+    print("Dropping table.")
     drop_table()
+    print("Creating table.")
     create_table()
     # Download the data and load it into the DB
     try:
         for uri in DATA_FILES:
+            print("Downloading {0}".format(uri.split('/')[-1]))
             medicare_csv = download_zip(uri)
             headers = medicare_csv.readline().replace('"', "").split(",")
             print("Downloaded CSV contains {0} headers.".format(len(headers)))
@@ -324,6 +327,7 @@ if __name__ == '__main__':
         raise
     finally:
         try:
+            print("Deleting temporary data file.")
             os.remove(prepped_csv)
         except:
             pass
