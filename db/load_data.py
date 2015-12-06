@@ -16,7 +16,7 @@ import zipfile
 import psycopg2
 import requests
 
-TABLE_NAME = "medicare2010sample"
+TABLE_NAME = "medicare_beneficiary_sample_2010"
 
 # Parse arguments
 argparser = argparse.ArgumentParser(
