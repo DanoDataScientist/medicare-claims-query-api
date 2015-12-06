@@ -69,14 +69,12 @@ def download_zip(uri):
     return f
 
 
-def cursor_connect(db_dsn, cursor_factory=None):
+def cursor_connect(cursor_factory=None):
     """
     Connects to the DB and returns the connection and cursor, ready to use.
 
     Parameters
     ----------
-    db_dsn: str
-        A string representing the database DSN to connect to.
     cursor_factory : psycopg2.extras
         An optional psycopg2 cursor type, e.g. DictCursor.
 
@@ -93,16 +91,11 @@ def cursor_connect(db_dsn, cursor_factory=None):
     return con, cur
 
 
-def drop_table(db_dsn):
+def drop_table():
     """
     Drop the table specified by TABLE_NAME.
-
-    Parameters
-    ----------
-    db_dsn: str
-        A string representing the database DSN to connect to.
     """
-    con, cur = cursor_connect(db_dsn)
+    con, cur = cursor_connect()
     try:
         sql = "DROP TABLE IF EXISTS {0};".format(TABLE_NAME)
         cur.execute(sql)
@@ -114,16 +107,11 @@ def drop_table(db_dsn):
         con.close()
 
 
-def create_table(db_dsn):
+def create_table():
     """
     Create the table given by TABLE_NAME.
-
-    Parameters
-    ----------
-    db_dsn: str
-        A string representing the database DSN to connect to.
     """
-    con, cur = cursor_connect(db_dsn)
+    con, cur = cursor_connect()
     # Create new column types to hold sex and race
     try:
         # Create enumerated types (like factors in R) to use as column types
@@ -133,7 +121,7 @@ def create_table(db_dsn):
     except psycopg2.ProgrammingError as e:
         # If the types already exist just continue on
         if "already exists" in e.message:
-            con, cur = cursor_connect(db_dsn)
+            con, cur = cursor_connect()
         else:
             cur.close()
             con.close()
@@ -193,7 +181,7 @@ def load_csv(csv_file):
         have both `read()` and `readline()` methods.
 
     """
-    con, cur = cursor_connect(db_dsn)
+    con, cur = cursor_connect()
     try:
         with open(csv_file, 'r') as f:
             cur.copy_from(f, TABLE_NAME, sep=',', null='')
@@ -261,8 +249,8 @@ if __name__ == '__main__':
         args.host, args.dbname, args.user, args.password
     )
     # Delete the table and recreate it if it exists
-    drop_table(db_dsn)
-    create_table(db_dsn)
+    drop_table()
+    create_table()
     # Download the data and load it into the DB
     try:
         for uri in DATA_FILES:
@@ -271,6 +259,7 @@ if __name__ == '__main__':
             print("Downloaded CSV contains {0} headers.".format(len(headers)))
             prepped_csv = prep_csv(medicare_csv)
             load_csv(prepped_csv)
+        alter_col_types()
     except:
         raise
     finally:
