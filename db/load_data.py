@@ -89,3 +89,25 @@ def cursor_connect(db_dsn, cursor_factory=None):
     else:
         cur = con.cursor(cursor_factory=cursor_factory)
     return con, cur
+
+
+def drop_table(db_dsn):
+    """
+
+    Parameters
+    ----------
+    Parameters
+    ----------
+    db_dsn: str
+        A string representing the database DSN to connect to.
+    """
+    try:
+        con, cur = cursor_connect(db_dsn)
+        sql = "DROP TABLE IF EXISTS {0}".format(TABLE_NAME)
+        cur.execute(sql)
+    except psycopg2.Error:
+        raise
+    else:
+        con.commit()
+        cur.close()
+        con.close()
