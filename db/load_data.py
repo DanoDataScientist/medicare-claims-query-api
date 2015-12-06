@@ -93,9 +93,8 @@ def cursor_connect(db_dsn, cursor_factory=None):
 
 def drop_table(db_dsn):
     """
+    Drop the table specified by TABLE_NAME.
 
-    Parameters
-    ----------
     Parameters
     ----------
     db_dsn: str
