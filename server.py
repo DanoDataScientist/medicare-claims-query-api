@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import locale
 import os
 
 import psycopg2
@@ -15,6 +16,7 @@ app = Flask(__name__)
 
 TABLE_NAME = dbconfig.db_tablename
 
+locale.setlocale(locale.LC_ALL, '')  # For formatting numbers with commas
 
 @app.route('/')
 def hello_world():
