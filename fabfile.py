@@ -131,6 +131,7 @@ def deploy():
     require('hosts', provided_by=[aws])
     cut_production()
     local('fab aws pull')
+    sudo("supervisorctl restart medicare_app")
 
 
 def sub_install_packages():
