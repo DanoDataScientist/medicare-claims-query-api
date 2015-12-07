@@ -34,3 +34,13 @@ fab vagrant dev_server
 # [127.0.0.1:2222] out:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 ```
 
+## Deploying Changes
+
+```bash
+fab cut_production
+fab aws pull
+# Combines
+fab cut_production aws pull
+# Or to full deploy changes by cutting, pulling, then restarting Gunicorn:
+fab aws deploy
+```
