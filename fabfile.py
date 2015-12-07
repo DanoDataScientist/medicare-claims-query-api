@@ -106,6 +106,26 @@ def dev_server():
         "python project/server.py" % env)
 
 
+def cut_production():
+    """Merge changes from 'master' branch into 'production'."""
+    local("git checkout production; git merge master; git push; "
+          "git checkout master;")
+
+
+def pull():
+    """Pull a Git branch on the specified host."""
+    require('hosts', provided_by=[aws])
+    run("cd %(base)s/%(virtualenv)s/project; "
+        "git pull %(parent)s %(branch)s" % env)
+
+
+def deploy():
+    """Update the app on AWS."""
+    require('hosts', provided_by=[aws])
+    cut_production()
+    local('fab aws pull')
+
+
 def sub_install_packages():
     """Install the necessary packages on the host."""
     require('hosts', provided_by=[vagrant, aws])
