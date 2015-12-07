@@ -13,14 +13,17 @@ import argparse
 import csv
 import io
 import os
+import sys
 import urlparse
 import zipfile
 
 import psycopg2
 import requests
 
-from core.utilities import cursor_connect
+# Need to append parent dir to path so you can import files in sister dirs
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from db import config as dbconfig
+from core.utilities import cursor_connect
 
 TABLE_NAME = dbconfig.db_tablename
 
