@@ -18,6 +18,14 @@ TABLE_NAME = dbconfig.db_tablename
 
 locale.setlocale(locale.LC_ALL, '')  # For formatting numbers with commas
 
+# Default to connect to production environment, override later if dev server
+try:
+    db_dsn = "host={0} dbname={1} user={2} password={3}".format(
+        dbconfig.rds_dbhost, dbconfig.rds_dbname, dbconfig.rds_dbuser,
+        dbconfig.rds_dbpass)
+except ValueError:
+    pass
+
 
 @app.route('/')
 def hello_world():
@@ -37,10 +45,6 @@ def hello_world():
 if __name__ == '__main__':
     current_dir = os.path.dirname(os.path.realpath(__file__))
     if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
-        # Production environment
-        db_dsn = "host={0} dbname={1} user={2} password={3}".format(
-            dbconfig.rds_dbhost, dbconfig.rds_dbname, dbconfig.rds_dbuser,
-            dbconfig.rds_dbpass)
         app.run()
     else:
         # Running dev server...
