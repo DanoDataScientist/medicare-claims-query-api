@@ -122,9 +122,9 @@ def sub_make_virtualenv():
 
 
 def sub_link_project():
-  """Link the project into the virtual env."""
-  run("if [ ! -d %(base)s/%(virtualenv)s/project ]; "
-      "then ln -f -s /project %(base)s/%(virtualenv)s/project; fi" % env)
+    """Link the project into the virtual env."""
+    run("if [ ! -d %(base)s/%(virtualenv)s/project ]; "
+        "then ln -f -s /project %(base)s/%(virtualenv)s/project; fi" % env)
 
 
 def sub_clone_repo():
@@ -136,7 +136,7 @@ def sub_clone_repo():
 
 
 def sub_install_requirements():
-  """Install the Python requirements for the project."""
-  sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
-       "pip install pyopenssl ndg-httpsclient pyasn1; "  # Make SSL secure
-       "pip install -r project/requirements.txt" % env)
+    """Install the Python requirements for the project."""
+    sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
+        "pip install pyopenssl ndg-httpsclient pyasn1; "  # Make SSL secure
+        "pip install -r project/requirements.txt" % env)
