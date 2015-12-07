@@ -29,9 +29,10 @@ def hello_world():
         cur.execute(sql, TABLE_NAME)
         result = cur.fetchone()
         num_rows = int(result[0])
-    except (psycopg2.Error, ValueError):
+    except (psycopg2.Error, ValueError) as e:
         num_rows = 0
-    finally:
+        return e.message
+    else:
         return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
 
 
