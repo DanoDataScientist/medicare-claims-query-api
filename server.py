@@ -7,7 +7,6 @@ import locale
 import os
 
 import psycopg2
-import logging
 from flask import Flask
 
 from core.utilities import cursor_connect
@@ -26,15 +25,13 @@ def hello_world():
     try:
         con, cur = cursor_connect(db_dsn)
         sql = "SELECT COUNT(*) FROM {0}".format(TABLE_NAME)
-        cur.execute(sql, TABLE_NAME)
+        cur.execute(sql)
         result = cur.fetchone()
         num_rows = int(result[0])
     except (psycopg2.Error, ValueError) as e:
         num_rows = 0
-        return e.message
     finally:
-        return "{0}".format(db_dsn)
-        # return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
+        return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
 
 
 if __name__ == '__main__':
@@ -44,7 +41,7 @@ if __name__ == '__main__':
         db_dsn = "host={0} dbname={1} user={2} password={3}".format(
             dbconfig.rds_dbhost, dbconfig.rds_dbname, dbconfig.rds_dbuser,
             dbconfig.rds_dbpass)
-        app.run(host='0.0.0.0', debug=True)
+        app.run()
     else:
         # Running dev server...
         db_dsn = "host={0} dbname={1} user={2}".format(dbconfig.vagrant_dbhost,
