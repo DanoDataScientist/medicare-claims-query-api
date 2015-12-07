@@ -29,6 +29,8 @@ def hello_world():
         num_rows = int(result[0])
     except (Exception, psycopg2.Error):
         pass
+    except ValueError:
+        num_rows = 0
     finally:
         return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
 
