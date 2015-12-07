@@ -121,8 +121,8 @@ def dev_server():
 
 def cut_production():
     """Merge changes from 'master' branch into 'production'."""
-    local("git checkout production; git merge master; git push; "
-          "git checkout master;")
+    local("git stash; git checkout production; git merge master; git push; "
+          "git checkout master; git stash apply;")
 
 
 def pull():
