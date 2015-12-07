@@ -1,6 +1,7 @@
 """Fabric configuration file for automated deployment."""
 import subprocess, sys, os
 from fabric.api import run, sudo, put, env, require, local, settings
+from fabric import operations
 from fabric.contrib.files import exists
 
 # Location of Git repo to clone project from
@@ -50,9 +51,9 @@ def vagrant():
     env.git_repo = GIT_REPO
     env.dev_mode = True
     env.settings = 'vagrant'
-    env.dbhost = 'medicare.chtdutbma0ig.us-west-2.rds.amazonaws.com'  # Change
-    env.dbname = 'BENEFICIARYDATA'  # Change accordingly (RDS)
-    env.dbuser = 'nikhil'  # Change accordingly (RDS)
+    env.dbhost = 'localhost'
+    env.dbname = 'beneficiary_data'  # Keep lowercase
+    env.dbuser = 'vagrant'
     env.dbpass = None
 
 
@@ -95,6 +96,7 @@ def bootstrap():
         sub_clone_repo()
     sub_link_project()
     sub_install_requirements()
+    sub_load_db()
 
 
 def sub_install_packages():
@@ -140,3 +142,44 @@ def sub_install_requirements():
     sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
         "pip install pyopenssl ndg-httpsclient pyasn1; "  # Make SSL secure
         "pip install -r project/requirements.txt" % env)
+
+
+def sub_setup_vagrant_db():
+    """Creates the Vagrant user and database on its local Postgres server."""
+    # Trust local connections so you can login as local users without password
+    sudo("sed -i 's/[[:space:]]md5$/trust/' "
+         "/etc/postgresql/9.3/main/pg_hba.conf")
+    # Restart server so changes can take effect
+    sudo("service postgresql restart")
+    # Create Postgres DB user and database, only warning if they already exist
+    with settings(warn_only=True):
+        sudo("psql -c 'CREATE USER {0} SUPERUSER'".format(env.dbuser),
+             user='postgres')
+        sudo("psql -c 'CREATE DATABASE {0} WITH OWNER {1}'".format(
+             env.dbname, env.dbuser), user='postgres')
+        sudo("psql -c 'GRANT ALL PRIVILEGES ON DATABASE {0} "
+             "TO vagrant'".format(env.dbname), user='postgres')
+    sudo("service postgresql restart")
+
+
+def sub_load_db():
+    """Load the data into the Vagrant VM or RDS (if 'aws' environment used)."""
+    if env.dev_mode:
+        sub_setup_vagrant_db()
+    if not env.dev_mode:
+        env.dbpass = operations.prompt("What is the DB password?:")
+    # Set up basic command to load database (works if DB password not needed)
+    db_load_command = ("python project/db/load_data.py --host %(dbhost)s "
+                       "--dbname %(dbname)s --user %(dbuser)s" % env)
+    # Append DB password if it is provided
+    if env.dbpass is not None:
+        password = "--password %(dbpass)s" % env
+        db_load_command = ' '.join([db_load_command, password])
+    # Need to put together entire command to activate virtualenv first
+    activate_venv = "cd %(base)s/%(virtualenv)s; source bin/activate;" % env
+    command = ' '.join([activate_venv, db_load_command])
+    print command
+    run(command)
+
+
+
