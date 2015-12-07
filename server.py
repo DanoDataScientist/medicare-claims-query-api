@@ -37,7 +37,7 @@ if __name__ == '__main__':
         # Production environment
         db_dsn = "host={0} dbname={1} user={2} password={3}".format(
             dbconfig.vagrant_dbhost, dbconfig.vagrant_dbname,
-            dbconfig.vagrant_dbuser)
+            dbconfig.vagrant_dbuser, dbconfig.rds_dbpass)
         app.run()
     else:
         # Running dev server...
