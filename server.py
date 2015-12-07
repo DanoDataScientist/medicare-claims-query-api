@@ -43,6 +43,7 @@ def hello_world():
 
 
 if __name__ == '__main__':
+    # NOTE: anything you put here won't get picked up in production
     current_dir = os.path.dirname(os.path.realpath(__file__))
     if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
         app.run()
