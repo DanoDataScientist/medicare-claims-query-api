@@ -105,6 +105,8 @@ def bootstrap():
         sub_clone_repo()  # Don't need to clone if Vagrant since repo is shared
     sub_link_project()
     sub_install_requirements()
+    if not env.dev_mode:
+        sub_copy_rds_password()  # Need this on the web server to connect to RDS
     sub_load_db()
     if not env.dev_mode:
         sub_setup_webserver()
@@ -253,12 +255,11 @@ def sub_configure_gunicorn():
 
 def sub_copy_rds_password():
     """Copy the RDS password from db/rds_password.py to the web server."""
-    put("db/rds_password", "%(base)s/%(virtualenv)s/project/db")
+    put("db/rds_password.py", "%(base)s/%(virtualenv)s/project/db" % env)
 
 
 def sub_setup_webserver():
     """Configure Nginx and start Gunicorn with supervisor."""
     require('hosts', provided_by=[aws])
-    sub_copy_rds_password()
     sub_configure_nginx()
     sub_configure_gunicorn()
