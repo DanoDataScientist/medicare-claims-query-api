@@ -20,6 +20,14 @@ TABLE_NAME = dbconfig.db_tablename
 locale.setlocale(locale.LC_ALL, '')  # For formatting numbers with commas
 
 
+# Setup logging to Gunicorn
+@app.before_first_request
+def setup_logging():
+    if not app.debug:
+        app.logger.addHandler(logging.StreamHandler())
+        app.logger.setLevel(logging.DEBUG)
+
+
 @app.route('/')
 def hello_world():
     num_rows = 0  # Default value
@@ -40,8 +48,8 @@ if __name__ == '__main__':
     if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
         # Production environment
         db_dsn = "host={0} dbname={1} user={2} password={3}".format(
-            dbconfig.rds_dbhost, dbconfig.rds_dbname,
-            dbconfig.rds_dbuser, dbconfig.rds_dbpass)
+            dbconfig.rds_dbhost, dbconfig.rds_dbname, dbconfig.rds_dbuser,
+            dbconfig.rds_dbpass)
         # Propagate exceptions to Gunicorn log: /var/log/gunicorn/error.log
         app.config['PROPAGATE_EXCEPTIONS'] = True
         app.run()
@@ -51,8 +59,3 @@ if __name__ == '__main__':
                                                        dbconfig.vagrant_dbname,
                                                        dbconfig.vagrant_dbuser)
         app.run(host='0.0.0.0', debug=True)
-    # Setup logging to Gunicorn
-    if not app.debug:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.DEBUG)
-        app.logger.addHandler(stream_handler)
