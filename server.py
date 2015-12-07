@@ -2,9 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 import os
+
 import psycopg2
 from flask import Flask
+
 from core.utilities import cursor_connect
 from db import config as dbconfig
 
