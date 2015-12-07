@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 
 import argparse
 import csv
+import glob
 import io
 import os
 import sys
@@ -288,6 +289,13 @@ if __name__ == '__main__':
     db_dsn = "host={0} dbname={1} user={2} password={3}".format(
         args.host, args.dbname, args.user, args.password
     )
+    # Delete any orphaned data file that might exist
+    try:
+        csv_files = glob.glob('*.csv')
+        for f in csv_files:
+            os.remove(f)
+    except:
+        pass
     # Delete the table and recreate it if it exists
     print("Dropping table.")
     drop_table()
