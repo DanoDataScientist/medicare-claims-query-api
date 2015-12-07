@@ -42,7 +42,7 @@ if __name__ == '__main__':
         db_dsn = "host={0} dbname={1} user={2} password={3}".format(
             dbconfig.rds_dbhost, dbconfig.rds_dbname, dbconfig.rds_dbuser,
             dbconfig.rds_dbpass)
-        app.run()
+        app.run(host='0.0.0.0', debug=True)
     else:
         # Running dev server...
         db_dsn = "host={0} dbname={1} user={2}".format(dbconfig.vagrant_dbhost,
