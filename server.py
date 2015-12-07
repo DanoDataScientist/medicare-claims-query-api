@@ -20,16 +20,14 @@ locale.setlocale(locale.LC_ALL, '')  # For formatting numbers with commas
 
 @app.route('/')
 def hello_world():
-    num_rows = '<error>'  # Default value
+    num_rows = 0  # Default value
     try:
         con, cur = cursor_connect(db_dsn)
         sql = "SELECT COUNT(*) FROM {0}".format(TABLE_NAME)
         cur.execute(sql, TABLE_NAME)
         result = cur.fetchone()
         num_rows = int(result[0])
-    except (Exception, psycopg2.Error):
-        pass
-    except ValueError:
+    except (psycopg2.Error, ValueError):
         num_rows = 0
     finally:
         return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
