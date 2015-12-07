@@ -1,8 +1,11 @@
 """Fabric configuration file for automated deployment."""
-import subprocess, sys, os
-from fabric.api import run, sudo, put, env, require, local, settings
+import os
+import subprocess
+
 from fabric import operations
-from fabric.contrib.files import exists
+from fabric.api import run, sudo, put, env, require, local, settings
+
+from db import config as dbconfig
 
 # Location of Git repo to clone project from
 GIT_ORIGIN = "https://github.com"
@@ -56,10 +59,10 @@ def vagrant():
     env.git_repo = GIT_REPO
     env.dev_mode = True
     env.settings = 'vagrant'
-    env.dbhost = 'localhost'
-    env.dbname = 'beneficiary_data'  # Keep lowercase
-    env.dbuser = 'vagrant'
-    env.dbpass = None
+    env.dbhost = dbconfig.vagrant_dbhost
+    env.dbname = dbconfig.vagrant_dbname
+    env.dbuser = dbconfig.vagrant_dbuser
+    env.dbpass = dbconfig.vagrant_dbpass
 
 
 def aws():
@@ -74,10 +77,10 @@ def aws():
     pem = os.path.join('/', 'Users', 'Nikhil', '.ssh', 'aws.pem')  # Change
     env.key_filename = pem
     env.settings = 'production'
-    env.dbhost = 'medicare.chtdutbma0ig.us-west-2.rds.amazonaws.com'  # Change
-    env.dbname = 'BENEFICIARYDATA'  # Change accordingly (RDS)
-    env.dbuser = 'nikhil'  # Change accordingly (RDS)
-    env.dbpass = None
+    env.dbhost = dbconfig.rds_dbhost
+    env.dbname = dbconfig.rds_dbname
+    env.dbuser = dbconfig.rds_dbuser
+    env.dbpass = dbconfig.rds_dbpass
 
 
 def ssh():

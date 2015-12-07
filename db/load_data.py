@@ -19,7 +19,10 @@ import zipfile
 import psycopg2
 import requests
 
-TABLE_NAME = "beneficiary_sample_2010"  # Keep lowercase
+from core.utilities import cursor_connect
+from db import config as dbconfig
+
+TABLE_NAME = dbconfig.db_tablename
 
 # Parse arguments
 argparser = argparse.ArgumentParser(
@@ -77,33 +80,11 @@ def download_zip(uri):
     return f
 
 
-def cursor_connect(cursor_factory=None):
-    """
-    Connects to the DB and returns the connection and cursor, ready to use.
-
-    Parameters
-    ----------
-    cursor_factory : psycopg2.extras
-        An optional psycopg2 cursor type, e.g. DictCursor.
-
-    Returns
-    -------
-    tuple
-        A tuple of (psycopg2 connection, psycopg2 cursor).
-    """
-    con = psycopg2.connect(dsn=db_dsn)
-    if not cursor_factory:
-        cur = con.cursor()
-    else:
-        cur = con.cursor(cursor_factory=cursor_factory)
-    return con, cur
-
-
 def drop_table():
     """
     Drop the table specified by TABLE_NAME.
     """
-    con, cur = cursor_connect()
+    con, cur = cursor_connect(db_dsn)
     try:
         sql = "DROP TABLE IF EXISTS {0};".format(TABLE_NAME)
         cur.execute(sql)
@@ -119,7 +100,7 @@ def create_table():
     """
     Create the table given by TABLE_NAME.
     """
-    con, cur = cursor_connect()
+    con, cur = cursor_connect(db_dsn)
     # Create new column types to hold sex and race
     try:
         # Create enumerated types (like factors in R) to use as column types
@@ -129,7 +110,7 @@ def create_table():
     except psycopg2.ProgrammingError as e:
         # If the types already exist just continue on
         if "already exists" in e.message:
-            con, cur = cursor_connect()
+            con, cur = cursor_connect(db_dsn)
         else:
             cur.close()
             con.close()
@@ -189,7 +170,7 @@ def load_csv(csv_file):
         have both `read()` and `readline()` methods.
 
     """
-    con, cur = cursor_connect()
+    con, cur = cursor_connect(db_dsn)
     try:
         with open(csv_file, 'r') as f:
             cur.copy_from(f, TABLE_NAME, sep=',', null='')
@@ -257,7 +238,7 @@ def alter_col_types():
 
     For example, convert the character-represented-dates to type DATE.
     """
-    con, cur = cursor_connect()
+    con, cur = cursor_connect(db_dsn)
     try:
         # Get column names so you can index the 2th and 3th columns
         sql = "SELECT * FROM {0} LIMIT 0;".format(TABLE_NAME)
@@ -282,7 +263,7 @@ def verify_data_load():
     """
     Verify that all the data was loaded into the DB.
     """
-    con, cur = cursor_connect()
+    con, cur = cursor_connect(db_dsn)
     try:
         sql = "SELECT COUNT(*) FROM {0}".format(TABLE_NAME)
         cur.execute(sql)
