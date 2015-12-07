@@ -40,6 +40,8 @@ if __name__ == '__main__':
         db_dsn = "host={0} dbname={1} user={2} password={3}".format(
             dbconfig.rds_dbhost, dbconfig.rds_dbname,
             dbconfig.rds_dbuser, dbconfig.rds_dbpass)
+        # Propagate exceptions to Gunicorn log: /var/log/gunicorn/error.log
+        app.config['PROPAGATE_EXCEPTIONS'] = True
         app.run()
     else:
         # Running dev server...
