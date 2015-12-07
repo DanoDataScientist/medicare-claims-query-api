@@ -26,7 +26,8 @@ INSTALL_PACKAGES = [
     "supervisor",
     "postgresql-client",
     "python-psycopg2",
-    "libpq-dev"
+    "libpq-dev",
+    "libffi-dev",
 ]
 
 VAGRANT_PACKAGES =[
@@ -137,4 +138,5 @@ def sub_clone_repo():
 def sub_install_requirements():
   """Install the Python requirements for the project."""
   sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
+       "pip install pyopenssl ndg-httpsclient pyasn1; "  # Make SSL secure
        "pip install -r project/requirements.txt" % env)
