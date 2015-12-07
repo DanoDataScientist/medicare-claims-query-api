@@ -26,7 +26,7 @@ def hello_world():
         sql = "SELECT COUNT(*) FROM {0}".format(TABLE_NAME)
         cur.execute(sql, TABLE_NAME)
         result = cur.fetchone()
-        num_rows = result[0]
+        num_rows = int(result[0])
     except (Exception, psycopg2.Error):
         pass
     finally:
