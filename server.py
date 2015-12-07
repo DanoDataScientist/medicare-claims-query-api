@@ -32,8 +32,9 @@ def hello_world():
     except (psycopg2.Error, ValueError) as e:
         num_rows = 0
         return e.message
-    else:
-        return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
+    finally:
+        return "{0}".format(db_dsn)
+        # return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
 
 
 if __name__ == '__main__':
