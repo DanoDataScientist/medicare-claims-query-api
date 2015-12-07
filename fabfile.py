@@ -2,7 +2,6 @@
 import os
 import subprocess
 
-from fabric import operations
 from fabric.api import run, sudo, put, env, require, local, settings
 
 from db import config as dbconfig
@@ -46,8 +45,10 @@ AWS_PACKAGES = [
 
 # Vagrant environment
 def vagrant():
-    raw_ssh_config = subprocess.Popen(['vagrant', 'ssh-config'], stdout=subprocess.PIPE).communicate()[0]
-    ssh_config_list = [l.strip().split() for l in raw_ssh_config.split("\n") if l]
+    raw_ssh_config = subprocess.Popen(['vagrant', 'ssh-config'],
+                                      stdout=subprocess.PIPE).communicate()[0]
+    ssh_config_list = [l.strip().split()
+                       for l in raw_ssh_config.split("\n") if l]
     ssh_config = dict([x for x in ssh_config_list if x != []])
     env.repo = ("env.medicare-api.com", "origin", "master")
     env.virtualenv, env.parent, env.branch = env.repo
