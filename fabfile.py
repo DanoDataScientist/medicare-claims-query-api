@@ -248,6 +248,8 @@ def sub_configure_gunicorn():
     with settings(warn_only=True):
         sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
              "pkill gunicorn" % env)
+    sudo("chown -R ubuntu:ubuntu /var/log/gunicorn")
+    run("touch /var/log/gunicorn/error.log")
     sudo("supervisorctl reread")
     sudo("supervisorctl update")
     sudo("supervisorctl start medicare_app")
@@ -262,4 +264,6 @@ def sub_setup_webserver():
     """Configure Nginx and start Gunicorn with supervisor."""
     require('hosts', provided_by=[aws])
     sub_configure_nginx()
+    with settings(warn_only=True):
+        sudo("supervisorctl stop medicare_app")
     sub_configure_gunicorn()
