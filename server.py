@@ -8,8 +8,8 @@ import os
 import psycopg2
 from flask import Flask
 
-from .core.utilities import cursor_connect
-from .db import config as dbconfig
+from core.utilities import cursor_connect
+from db import config as dbconfig
 
 app = Flask(__name__)
 

@@ -4,7 +4,7 @@ import subprocess
 
 from fabric.api import run, sudo, put, env, require, local, settings
 
-from .db import config as dbconfig
+from db import config as dbconfig
 
 # Location of Git repo to clone project from
 GIT_ORIGIN = "https://github.com"

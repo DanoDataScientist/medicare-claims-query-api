@@ -1,4 +1,4 @@
-from . import rds_password
+from db import rds_password
 
 # Change the following settings to match your RDS instance
 rds_dbhost = "medicare.chtdutbma0ig.us-west-2.rds.amazonaws.com"

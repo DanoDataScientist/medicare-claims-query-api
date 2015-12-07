@@ -19,8 +19,8 @@ import zipfile
 import psycopg2
 import requests
 
-from ..core.utilities import cursor_connect
-from . import config as dbconfig
+from core.utilities import cursor_connect
+from db import config as dbconfig
 
 TABLE_NAME = dbconfig.db_tablename
 
