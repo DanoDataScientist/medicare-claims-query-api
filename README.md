@@ -4,9 +4,19 @@ A simple Flask app for loading CMS 2008-2010 claims and creating a REST API to
 query the data.
 
 ## Install
-Set up your EC2 and RDS instances if you haven't, then update the related `HOST`
-and database variables in *fabfile.py* (look for comments beginning with
-`# Configure`. Then run:
+Set up your EC2 and RDS instances if you haven't, then update the related 
+`HOST`, pem, and database variables in *fabfile.py* and *db/config.py* (look for
+comments beginning with `# Change`. 
+
+Next, create a file *db/rds_password.py* and populate it with your password,
+like so:
+
+```python
+"""Secret RDS password that doesn't get store in Git."""
+rds_pass = "123456abcdefg"  # Change accordingly (RDS)
+```
+
+Then run:
 
 ```bash
 vagrant up

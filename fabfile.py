@@ -1,8 +1,11 @@
 """Fabric configuration file for automated deployment."""
-import subprocess, sys, os
-from fabric.api import run, sudo, put, env, require, local, settings
+import os
+import subprocess
+
 from fabric import operations
-from fabric.contrib.files import exists
+from fabric.api import run, sudo, put, env, require, local, settings
+
+from db import config as dbconfig
 
 # Location of Git repo to clone project from
 GIT_ORIGIN = "https://github.com"
@@ -56,10 +59,10 @@ def vagrant():
     env.git_repo = GIT_REPO
     env.dev_mode = True
     env.settings = 'vagrant'
-    env.dbhost = 'localhost'
-    env.dbname = 'beneficiary_data'  # Keep lowercase
-    env.dbuser = 'vagrant'
-    env.dbpass = None
+    env.dbhost = dbconfig.vagrant_dbhost
+    env.dbname = dbconfig.vagrant_dbname
+    env.dbuser = dbconfig.vagrant_dbuser
+    env.dbpass = dbconfig.vagrant_dbpass
 
 
 def aws():
@@ -74,10 +77,10 @@ def aws():
     pem = os.path.join('/', 'Users', 'Nikhil', '.ssh', 'aws.pem')  # Change
     env.key_filename = pem
     env.settings = 'production'
-    env.dbhost = 'medicare.chtdutbma0ig.us-west-2.rds.amazonaws.com'  # Change
-    env.dbname = 'BENEFICIARYDATA'  # Change accordingly (RDS)
-    env.dbuser = 'nikhil'  # Change accordingly (RDS)
-    env.dbpass = None
+    env.dbhost = dbconfig.rds_dbhost
+    env.dbname = dbconfig.rds_dbname
+    env.dbuser = dbconfig.rds_dbuser
+    env.dbpass = dbconfig.rds_dbpass
 
 
 def ssh():
@@ -177,8 +180,8 @@ def sub_clone_repo():
 def sub_install_requirements():
     """Install the Python requirements for the project."""
     sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
-        "pip install pyopenssl ndg-httpsclient pyasn1; "  # Make SSL secure
-        "pip install -r project/requirements.txt" % env)
+         "pip install pyopenssl ndg-httpsclient pyasn1; "  # Make SSL secure
+         "pip install -r project/requirements.txt" % env)
 
 
 def sub_setup_vagrant_db():
@@ -203,8 +206,8 @@ def sub_load_db():
     """Load the data into the Vagrant VM or RDS (if 'aws' environment used)."""
     if env.dev_mode:
         sub_setup_vagrant_db()
-    if not env.dev_mode:
-        env.dbpass = operations.prompt("What is the DB password?:")
+    if not env.dev_mode and env.dbpass is None:
+        raise Exception("Please put your RDS password in db/rds_password.py")
     # Set up basic command to load database (works if DB password not needed)
     db_load_command = ("python project/db/load_data.py --host %(dbhost)s "
                        "--dbname %(dbname)s --user %(dbuser)s" % env)
@@ -247,8 +250,14 @@ def sub_configure_gunicorn():
     sudo("supervisorctl start medicare_app")
 
 
+def sub_copy_rds_password():
+    """Copy the RDS password from db/rds_password.py to the web server."""
+    put("db/rds_password", "%(base)s/%(virtualenv)s/project/db")
+
+
 def sub_setup_webserver():
     """Configure Nginx and start Gunicorn with supervisor."""
     require('hosts', provided_by=[aws])
+    sub_copy_rds_password()
     sub_configure_nginx()
     sub_configure_gunicorn()
