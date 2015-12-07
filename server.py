@@ -15,4 +15,5 @@ if __name__ == '__main__':
         app.run()
     else:
         # Running dev server...
+        app.run(debug=True)  # Auto-reload app on code changes
         app.run(host='0.0.0.0')
