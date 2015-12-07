@@ -19,7 +19,7 @@ import zipfile
 import psycopg2
 import requests
 
-TABLE_NAME = "BENEFICIARYSAMPLE2010"
+TABLE_NAME = "beneficiary_sample_2010"  # Keep lowercase
 
 # Parse arguments
 argparser = argparse.ArgumentParser(
