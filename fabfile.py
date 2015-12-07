@@ -75,13 +75,6 @@ def aws():
     env.dbpass = None
 
 
-def dev_server():
-    """Start a local Vagrant dev server running the Flask app."""
-    require('hosts', provided_by=[vagrant])
-    run("cd %(base)s/%(virtualenv)s; source bin/activate; "
-        "python project/server.py" % env)
-
-
 def ssh():
     """SSH into a given environment."""
     require('hosts', provided_by=[vagrant, aws])
@@ -104,6 +97,13 @@ def bootstrap():
     sub_link_project()
     sub_install_requirements()
     sub_load_db()
+
+
+def dev_server():
+    """Start a local Vagrant dev server running the Flask app."""
+    require('hosts', provided_by=[vagrant])
+    run("cd %(base)s/%(virtualenv)s; source bin/activate; "
+        "python project/server.py" % env)
 
 
 def sub_install_packages():
