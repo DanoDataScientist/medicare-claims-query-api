@@ -7,6 +7,7 @@ import locale
 import os
 
 import psycopg2
+import logging
 from flask import Flask
 
 from core.utilities import cursor_connect
@@ -17,6 +18,7 @@ app = Flask(__name__)
 TABLE_NAME = dbconfig.db_tablename
 
 locale.setlocale(locale.LC_ALL, '')  # For formatting numbers with commas
+
 
 @app.route('/')
 def hello_world():
@@ -49,3 +51,8 @@ if __name__ == '__main__':
                                                        dbconfig.vagrant_dbname,
                                                        dbconfig.vagrant_dbuser)
         app.run(host='0.0.0.0', debug=True)
+    # Setup logging to Gunicorn
+    if not app.debug:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.DEBUG)
+        app.logger.addHandler(stream_handler)
