@@ -36,6 +36,11 @@ VAGRANT_PACKAGES = [
     "postgresql-contrib",
 ]
 
+AWS_PACKAGES = [
+    "nginx",
+    "supervisor",
+]
+
 # Vagrant environment
 def vagrant():
     raw_ssh_config = subprocess.Popen(['vagrant', 'ssh-config'], stdout=subprocess.PIPE).communicate()[0]
@@ -97,6 +102,35 @@ def bootstrap():
     sub_link_project()
     sub_install_requirements()
     sub_load_db()
+    if not env.dev_mode:
+        sub_setup_webserver()
+
+
+def dev_server():
+    """Start a local Vagrant dev server running the Flask app."""
+    require('hosts', provided_by=[vagrant])
+    run("cd %(base)s/%(virtualenv)s; source bin/activate; "
+        "python project/server.py" % env)
+
+
+def cut_production():
+    """Merge changes from 'master' branch into 'production'."""
+    local("git checkout production; git merge master; git push; "
+          "git checkout master;")
+
+
+def pull():
+    """Pull a Git branch on the specified host."""
+    require('hosts', provided_by=[aws])
+    run("cd %(base)s/%(virtualenv)s/project; "
+        "git pull %(parent)s %(branch)s" % env)
+
+
+def deploy():
+    """Update the app on AWS."""
+    require('hosts', provided_by=[aws])
+    cut_production()
+    local('fab aws pull')
 
 
 def sub_install_packages():
@@ -106,6 +140,8 @@ def sub_install_packages():
     # If Vagrant, install Postgres server so you can host DB on VM
     if env.dev_mode:
         package_str += " " + " ".join(VAGRANT_PACKAGES)
+    else:
+        package_str += " " + " ".join(AWS_PACKAGES)
     sudo("apt-get update")
     sudo("apt-get -y upgrade")
     sudo("apt-get -y install " + package_str)
@@ -182,4 +218,36 @@ def sub_load_db():
     run(command)
 
 
+def sub_configure_nginx():
+    """Configure Nginx by removing default site and enabling our Flask app."""
+    require('hosts', provided_by=[aws])
+    sudo("/etc/init.d/nginx start")
+    # Delete default Nginx site and add config for Flask app
+    with settings(warn_only=True):
+        sudo("rm /etc/nginx/sites-enabled/default")
+    put("config/nginx.conf", "/etc/nginx/sites-available/medicare_app",
+        use_sudo=True)
+    with settings(warn_only=True):
+        sudo("ln -s /etc/nginx/sites-available/medicare_app "
+             "/etc/nginx/sites-enabled/medicare_app")
+    sudo("/etc/init.d/nginx restart")
 
+
+def sub_configure_gunicorn():
+    """Configure Gunicorn in our virtualenv to run the Flask app."""
+    require('hosts', provided_by=[aws])
+    put("config/supervisor_gunicorn.conf",
+        "/etc/supervisor/conf.d/medicare_app.conf", use_sudo=True)
+    with settings(warn_only=True):
+        sudo("cd %(base)s/%(virtualenv)s; source bin/activate; "
+             "pkill gunicorn" % env)
+    sudo("supervisorctl reread")
+    sudo("supervisorctl update")
+    sudo("supervisorctl start medicare_app")
+
+
+def sub_setup_webserver():
+    """Configure Nginx and start Gunicorn with supervisor."""
+    require('hosts', provided_by=[aws])
+    sub_configure_nginx()
+    sub_configure_gunicorn()
