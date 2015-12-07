@@ -206,8 +206,8 @@ def sub_load_db():
     """Load the data into the Vagrant VM or RDS (if 'aws' environment used)."""
     if env.dev_mode:
         sub_setup_vagrant_db()
-    if not env.dev_mode:
-        env.dbpass = operations.prompt("What is the DB password?:")
+    if not env.dev_mode and env.dbpass is None:
+        raise Exception("Please put your RDS password in db/rds_password.py")
     # Set up basic command to load database (works if DB password not needed)
     db_load_command = ("python project/db/load_data.py --host %(dbhost)s "
                        "--dbname %(dbname)s --user %(dbuser)s" % env)
@@ -250,8 +250,14 @@ def sub_configure_gunicorn():
     sudo("supervisorctl start medicare_app")
 
 
+def sub_copy_rds_password():
+    """Copy the RDS password from db/rds_password.py to the web server."""
+    put("db/rds_password", "%(base)s/%(virtualenv)s/project/db")
+
+
 def sub_setup_webserver():
     """Configure Nginx and start Gunicorn with supervisor."""
     require('hosts', provided_by=[aws])
+    sub_copy_rds_password()
     sub_configure_nginx()
     sub_configure_gunicorn()

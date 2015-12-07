@@ -2,18 +2,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-
 import os
-
 import psycopg2
 from flask import Flask
-
 from core.utilities import cursor_connect
 from db import config as dbconfig
 
 app = Flask(__name__)
 
 TABLE_NAME = dbconfig.db_tablename
+
 
 @app.route('/')
 def hello_world():
@@ -34,7 +32,9 @@ if __name__ == '__main__':
     current_dir = os.path.dirname(os.path.realpath(__file__))
     if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
         # Production environment
-
+        db_dsn = "host={0} dbname={1} user={2} password={3}".format(
+            dbconfig.vagrant_dbhost, dbconfig.vagrant_dbname,
+            dbconfig.vagrant_dbuser)
         app.run()
     else:
         # Running dev server...

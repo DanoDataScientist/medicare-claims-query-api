@@ -153,6 +153,7 @@ crashlytics-build.properties
 
 # Misc.
 notes.txt
+db/rds_password.py
 
 # Vagrant
 .vagrant/
