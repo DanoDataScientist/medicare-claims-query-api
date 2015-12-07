@@ -31,8 +31,8 @@ INSTALL_PACKAGES = [
     "libffi-dev",
 ]
 
-VAGRANT_PACKAGES =[
-    "postgresql",
+VAGRANT_PACKAGES = [
+    "postgresql-9.3",
     "postgresql-contrib",
 ]
 
@@ -93,7 +93,7 @@ def bootstrap():
     sub_install_packages()
     sub_make_virtualenv()
     if not env.dev_mode:
-        sub_clone_repo()
+        sub_clone_repo()  # Don't need to clone if Vagrant since repo is shared
     sub_link_project()
     sub_install_requirements()
     sub_load_db()
