@@ -28,7 +28,8 @@ def hello_world():
     except (Exception, psycopg2.Error):
         pass
     finally:
-        return "Hello World! I can access {0:,} rows of data!".format(num_rows)
+        return "Hello World! I can access {0:,} rows of data!".format(
+            str(num_rows))
 
 
 if __name__ == '__main__':
