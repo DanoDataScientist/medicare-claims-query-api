@@ -32,7 +32,7 @@ TABLE_NAME = dbconfig.db_tablename
 argparser = argparse.ArgumentParser(
     description="Load synthetic CMS 2010 summary beneficiary data into "
                 "Postgres.",
-    epilog="example: python load_data.py --host localhost --dbname Nikhil "
+    epilog="example: python data_loader.py --host localhost --dbname Nikhil "
            "--user Nikhil")
 argparser.add_argument("--host", required=True, help="location of database")
 argparser.add_argument("--dbname", required=True, help="name of database")
