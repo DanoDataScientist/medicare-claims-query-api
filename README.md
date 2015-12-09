@@ -71,7 +71,8 @@ fab aws bootstrap # Provision EC2, clone this repo, and launch web server
 
 Your app is now deployed on EC2. A big advantage of the approach here is that
 the data is loaded directly onto your EC2 instance and then copied through
-Amazon's local network to RDS. You do not need to upload data to RDS yourself.
+Amazon's local network to RDS. Data is never transferred from your computer
+to RDS, so setting up the DB is fast.
 
 ## Deploying Code Changes to EC2
 
