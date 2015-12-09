@@ -1,7 +1,6 @@
 """Load the CMS 2008-2010 Medicare Beneficiary Summary tables into Postgres.
 
-See https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable
--Public-Use-Files/SynPUFs/DE_Syn_PUF.html
+See https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs/DE_Syn_PUF.html
 for more info on the data.
 """
 from __future__ import absolute_import
@@ -32,7 +31,7 @@ TABLE_NAME = dbconfig.db_tablename
 argparser = argparse.ArgumentParser(
     description="Load synthetic CMS 2010 summary beneficiary data into "
                 "Postgres.",
-    epilog="example: python load_data.py --host localhost --dbname Nikhil "
+    epilog="example: python data_loader.py --host localhost --dbname Nikhil "
            "--user Nikhil")
 argparser.add_argument("--host", required=True, help="location of database")
 argparser.add_argument("--dbname", required=True, help="name of database")

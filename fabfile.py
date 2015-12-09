@@ -212,7 +212,7 @@ def sub_load_db():
     if not env.dev_mode and env.dbpass is None:
         raise Exception("Please put your RDS password in db/rds_password.py")
     # Set up basic command to load database (works if DB password not needed)
-    db_load_command = ("python project/db/load_data.py --host %(dbhost)s "
+    db_load_command = ("python project/db/data_loader.py --host %(dbhost)s "
                        "--dbname %(dbname)s --user %(dbuser)s" % env)
     # Append DB password if it is provided
     if env.dbpass is not None:

@@ -7,7 +7,12 @@ import locale
 import os
 
 import psycopg2
-from flask import Flask
+import psycopg2.extras
+from flask import Flask, jsonify
+
+import re
+
+re.sub
 
 from core.utilities import cursor_connect
 from db import config as dbconfig
@@ -27,8 +32,39 @@ except ValueError:
     pass
 
 
+def json_error(code, err):
+    """
+    Make a JSON error response.
+
+    Parameters
+    ----------
+    code : int
+        The HTTP error code to return.
+    err : str
+        Error message to return as JSON.
+
+    Returns
+    -------
+    response
+        A JSON response.
+    """
+    response = jsonify(error=err)
+    response.status_code = code
+    return response
+
+
 @app.route('/')
-def hello_world():
+def index():
+    """
+    Main page with no JSON API, just a short message about number of rows
+    available.
+
+    Returns
+    -------
+    str
+        A short message saying hello and then displaying the number of rows
+        available to query.
+    """
     num_rows = 0  # Default value
     try:
         con, cur = cursor_connect(db_dsn)
@@ -42,7 +78,42 @@ def hello_world():
         return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
 
 
+@app.route('/api/v1/count/<col>')
+def get_counts(col):
+    """
+    Get counts of distinct values in the available columns.
+
+    Returns
+    -------
+    json
+        A labeled JSON object with corresponding counts.
+
+    Examples
+    --------
+    /api/v1/count/race
+    /api/v1/count/cancer
+    """
+    count = {}
+    cleaned_col = re.sub('\W+', '', col)
+    try:
+        if cleaned_col == 'id':
+            return json_error(403,
+                              "column '{0}' is not allowed".format(cleaned_col))
+        con, cur = cursor_connect(db_dsn, psycopg2.extras.DictCursor)
+        query = """
+        SELECT {0}, COUNT(*) AS num FROM {1}
+        GROUP BY {0};""".format(cleaned_col, TABLE_NAME)
+        cur.execute(query, (cleaned_col, ))
+        result = cur.fetchall()
+        for row in result:
+            label = row[cleaned_col]
+            count[label] = row['num']
+    except Exception as e:
+        return jsonify({'error': e.message})
+    return jsonify(count)
+
 if __name__ == '__main__':
+    # NOTE: anything you put here won't get picked up in production
     current_dir = os.path.dirname(os.path.realpath(__file__))
     if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
         app.run()
