@@ -3,6 +3,7 @@
 See https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs/DE_Syn_PUF.html
 for more info on the data.
 
+This file is intended to be run during Vagrant or AWS provisioning.
 See https://github.com/nsh87/medicare-claims-query-api for more info on setting
 this up in your own environment.
 """
