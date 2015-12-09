@@ -110,6 +110,12 @@ def create_table():
         cur.execute("CREATE TYPE sex AS ENUM ('male', 'female');")
         cur.execute("CREATE TYPE race as ENUM ('white', 'black', 'others', "
                     "'hispanic');")
+        cur.execute("CREATE TYPE state as ENUM ("
+                    "AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, "
+                    "HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, "
+                    "MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, "
+                    "NC, ND, OH, OK, OR, PA, __, RI, SC, SD, TN, "
+                    "TX, UT, VT, __, VA, WA, WV, WI, WY);")
     except psycopg2.ProgrammingError as e:
         # If the types already exist just continue on
         if "already exists" in e.message:
@@ -126,7 +132,7 @@ def create_table():
                "sex sex, "
                "race race, "
                "end_stage_renal_disease BOOLEAN, "
-               "state INT, "
+               "state state, "
                "county_code INT, "
                "part_a_coverage_months INT, "
                "part_b_coverage_months INT, "
