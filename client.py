@@ -8,12 +8,13 @@ from __future__ import unicode_literals
 
 import json
 import urllib2
+import os
 
-# Vagrant
 SERVER = 'http://localhost:7000'
 
-# EC2
-# SERVER = 'http://52.32.95.188'
+current_dir = os.path.dirname(os.path.realpath(__file__))
+if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
+    SERVER = 'http://52.32.95.188'
 
 
 def get_counts(col):
