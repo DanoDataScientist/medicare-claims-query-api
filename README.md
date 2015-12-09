@@ -5,11 +5,9 @@ A simple Flask app for loading the Center for Medicare & Medicaid Services (CMS)
 
 ## Install
 Download and install [Vagrant](https://www.vagrantup.com) and 
-[VirtualBox](https://www.virtualbox.org). Then
-`pip install -r requirements.txt` (if that doesn't work just
+[VirtualBox](https://www.virtualbox.org). Then clone the repo and `cd` into it.
+Next, `pip install -r requirements.txt` (if that doesn't work just
 `pip install fabric` - that's really the only thing you need).
-
-Clone the repo and `cd` into it.
 
 Set up your EC2 (free tier Ubuntu) and RDS (Postgres) instances if you haven't, 
 then update the related host, pem, and database variables in *db/config.py*.
