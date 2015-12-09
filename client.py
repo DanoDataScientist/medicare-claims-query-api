@@ -50,6 +50,27 @@ def get_state_depression():
     return json.loads(out)
 
 
+def get_avg_col(col):
+    """
+    Get the average value of a column.
+
+    Parameters
+    ----------
+    col : str, unicode
+        The column to get the average of.
+
+    Returns
+    -------
+    dict
+        A dictionary whose key is the column name and the value is the average
+        value of that column.
+    """
+    out = dict()
+    response = urllib2.urlopen(SERVER + '/api/v1/average/{0}'.format(col))
+    results = json.loads(response.read())
+    return results['average']
+
+
 if __name__ == '__main__':
     print("*********************************************")
     print("test of my flask app runn at {0}".format(SERVER))
@@ -72,3 +93,17 @@ if __name__ == '__main__':
         print("{0}: {1}".format(state.keys()[0], state.values()[0]))
     print("*********************************************")
     print("")
+    print("****** average inpatient reimbursement ******")
+    reimb = get_avg_col('inpatient_reimbursement')
+    print("{0}: {1}".format(reimb.keys()[0], reimb.values()[0]))
+    print("*********************************************")
+    print("")
+    print("***** average outpatient reimbursement ******")
+    reimb = get_avg_col('outpatient_reimbursement')
+    print("{0}: {1}".format(reimb.keys()[0], reimb.values()[0]))
+    print("*********************************************")
+    print("")
+    print("**** average beneficiary responsibility *****")
+    reimb = get_avg_col('beneficiary_responsibility')
+    print("{0}: {1}".format(reimb.keys()[0], reimb.values()[0]))
+    print("*********************************************")

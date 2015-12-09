@@ -87,6 +87,11 @@ def get_counts(col):
     """
     Get counts of distinct values in the available columns.
 
+    Parameters
+    ----------
+    col : str, unicode
+        The name of a column to get the average of.
+
     Returns
     -------
     json
@@ -115,6 +120,56 @@ def get_counts(col):
     except Exception as e:
         return jsonify({'error': e.message})
     return jsonify(count)
+
+
+@app.route('/api/v1/average/<col>')
+def get_average(col):
+    """
+    Get the average value from a column.
+
+    Parameters
+    ----------
+    col : str, unicode
+        The name of a column to get the average of.
+
+    Returns
+    -------
+    json
+        A labeled value containing the column name as key and the average of
+        that column as the value, as the value for key 'average'.
+    """
+    avg = {}
+    # Only allow average value computation on certain (numeric) columns
+    accepted_cols = (
+        "inpatient_reimbursement",
+        "inpatient_beneficiary_responsibility",
+        "inpatient_primary_payer_reimbursement",
+        "outpatient_reimbursement",
+        "outpatient_beneficiary_responsibility",
+        "outpatient_primary_payer_reimbursement",
+        "carrier_reimbursement",
+        "beneficiary_responsibility",
+        "primary_payer_reimbursement",
+        "part_a_coverage_months",
+        "part_b_coverage_months",
+        "hmo_coverage_months",
+        "part_d_coverage_months",
+    )
+    # Strip the user input to alpha characters only
+    cleaned_col = re.sub('\W+', '', col)
+    try:
+        if cleaned_col not in accepted_cols:
+            return json_error(403,
+                              "column '{0}' is not allowed".format(cleaned_col))
+        con, cur = cursor_connect(db_dsn, psycopg2.extras.DictCursor)
+        query = "SELECT AVG({0}) FROM {1};".format(cleaned_col, TABLE_NAME)
+        cur.execute(query, (cleaned_col, ))
+        result = cur.fetchall()
+        for row in result:
+            avg[cleaned_col] = round(row['avg'], 2)
+    except Exception as e:
+        return jsonify({'error': e.message})
+    return jsonify({'average': avg})
 
 
 @app.route('/api/v1/depressed_states')
