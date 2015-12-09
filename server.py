@@ -1,3 +1,6 @@
+"""Flask-based JSON API to Medicare claims data: please see the repository
+https://github.com/nsh87/medicare-claims-query-api for more info.
+"""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -9,6 +12,7 @@ import os
 import psycopg2
 import psycopg2.extras
 from flask import Flask, jsonify
+from collections import OrderedDict
 
 import re
 
@@ -111,6 +115,43 @@ def get_counts(col):
     except Exception as e:
         return jsonify({'error': e.message})
     return jsonify(count)
+
+
+@app.route('/api/v1/depressed_states')
+def depressed_states():
+    """
+    Get the states in descending order of the percentage of depression claims.
+
+    Returns
+    -------
+    json
+        A labeled JSON object with the state and percent depression claims out
+        of all of that state's claims.
+
+    Examples
+    --------
+    /api/v1/depressed_states
+    """
+    depressed = []
+    try:
+        con, cur = cursor_connect(db_dsn, psycopg2.extras.DictCursor)
+        query = """
+        SELECT state, depressed/claims::float AS frequency FROM (SELECT
+        LHS.state AS state, depressed, claims FROM (SELECT state, count(*) AS
+        claims FROM {0} GROUP BY state order by claims desc)
+        AS LHS LEFT JOIN (SELECT state, count(*) AS depressed FROM
+        {0} WHERE depression='true' GROUP BY state) AS RHS
+        ON LHS.state=RHS.state) AS outer_q
+        ORDER by frequency DESC;""".format(TABLE_NAME)
+        cur.execute(query)
+        result = cur.fetchall()
+        for row in result:
+            freq = {row['state']: row['frequency']}
+            depressed.append(freq)
+    except Exception as e:
+        return jsonify({'error': e.message})
+    return jsonify(state_depression=depressed)
+
 
 if __name__ == '__main__':
     # NOTE: anything you put here won't get picked up in production

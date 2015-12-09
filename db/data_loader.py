@@ -104,20 +104,23 @@ def create_table():
     Create the table given by TABLE_NAME.
     """
     con, cur = cursor_connect(db_dsn)
-    # Create new column types to hold sex and race
-    try:
-        # Create enumerated types (like factors in R) to use as column types
-        cur.execute("CREATE TYPE sex AS ENUM ('male', 'female');")
-        cur.execute("CREATE TYPE race as ENUM ('white', 'black', 'others', "
-                    "'hispanic');")
-    except psycopg2.ProgrammingError as e:
-        # If the types already exist just continue on
-        if "already exists" in e.message:
-            con, cur = cursor_connect(db_dsn)
-        else:
-            cur.close()
-            con.close()
-            raise
+    # Create new column types, like factors in R, to hold sex and race.
+    new_types = [
+        ("CREATE TYPE sex AS ENUM ('male', 'female');",),
+        ("CREATE TYPE race as ENUM ('white', 'black', 'others', 'hispanic');",),
+    ]
+    for i, val in enumerate(new_types):
+        cmd = val[0]
+        try:
+            cur.execute(cmd)
+        except psycopg2.ProgrammingError as e:
+            # If the types already exist just continue on
+            if "already exists" in e.message:
+                con, cur = cursor_connect(db_dsn)  # Re-create the connection
+            else:
+                cur.close()
+                con.close()
+                raise
     try:
         sql = ("CREATE TABLE {0} ("
                "id CHAR(16) UNIQUE, "
@@ -126,7 +129,7 @@ def create_table():
                "sex sex, "
                "race race, "
                "end_stage_renal_disease BOOLEAN, "
-               "state INT, "
+               "state VARCHAR(4), "
                "county_code INT, "
                "part_a_coverage_months INT, "
                "part_b_coverage_months INT, "
@@ -202,11 +205,22 @@ def prep_csv(csv_file):
     str
         Path to a prepared CSV file on disk.
     """
+    states = ('AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC',
+              'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY',
+              'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT',
+              'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH',
+              'OK', 'OR', 'PA', '__', 'RI', 'SC', 'SD', 'TN', 'TX',
+              'UT', 'VT', '__', 'VA', 'WA', 'WV', 'WI', 'WY', 'Othr')
+    states_map = {}
+    for i, val in enumerate(states):
+        states_map[i + 1] = val
     prepped_filename = 'prepped_medicare.csv'
     reader = csv.reader(csv_file)
     with open(prepped_filename, 'a') as f:
         writer = csv.writer(f)
         for row in reader:
+            # Transform state
+            row[6] = states_map[int(row[6])]
             # Transform 'Y' for 'yes' into 1, for boolean
             if row[5] == 'Y':
                 row[5] = '1'.encode('ascii')
@@ -323,4 +337,3 @@ if __name__ == '__main__':
             os.remove(prepped_csv)
         except:
             pass
-
