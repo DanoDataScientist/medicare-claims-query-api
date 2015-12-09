@@ -105,17 +105,20 @@ def create_table():
     """
     con, cur = cursor_connect(db_dsn)
     # Create new column types to hold sex and race
-    try:
-        # Create enumerated types (like factors in R) to use as column types
+    # Create enumerated types (like factors in R) to use as column types
+    types = {
         cur.execute("CREATE TYPE sex AS ENUM ('male', 'female');")
         cur.execute("CREATE TYPE race as ENUM ('white', 'black', 'others', "
                     "'hispanic');")
         cur.execute("CREATE TYPE state as ENUM ("
-                    "AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, "
-                    "HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, "
-                    "MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, "
-                    "NC, ND, OH, OK, OR, PA, __, RI, SC, SD, TN, "
-                    "TX, UT, VT, __, VA, WA, WV, WI, WY);")
+                    "'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', "
+                    "'FL', 'GA', " "'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', "
+                    "'LA', 'ME', 'MD', 'MA', " "'MI', 'MN', 'MS', 'MO', 'MT', "
+                    "'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', " "'NC', 'ND', 'OH', "
+                    "'OK', 'OR', 'PA', '__', 'RI', 'SC', 'SD', 'TN', " "'TX', "
+                    "'UT', 'VT', '__', 'VA', 'WA', 'WV', 'WI', 'WY');")
+    }
+    try:
     except psycopg2.ProgrammingError as e:
         # If the types already exist just continue on
         if "already exists" in e.message:
@@ -329,4 +332,3 @@ if __name__ == '__main__':
             os.remove(prepped_csv)
         except:
             pass
-
