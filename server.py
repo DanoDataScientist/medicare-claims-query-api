@@ -87,6 +87,11 @@ def get_counts(col):
     -------
     json
         A labeled JSON object with corresponding counts.
+
+    Examples
+    --------
+    /api/v1/count/race
+    /api/v1/count/cancer
     """
     count = {}
     cleaned_col = re.sub('\W+', '', col)
