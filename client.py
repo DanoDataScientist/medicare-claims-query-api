@@ -34,6 +34,22 @@ def get_counts(col):
     return json.loads(out)
 
 
+def get_state_depression():
+    """
+    Get the frequency of depression claims by state in descending order.
+
+    Returns
+    -------
+    list
+        A list of dictionaries with state abbreviation as keys and frequency
+        of depression claims as value.
+    """
+    out = dict()
+    response = urllib2.urlopen(SERVER + '/api/v1/depressed_states')
+    out = response.read()
+    return json.loads(out)
+
+
 if __name__ == '__main__':
     print("*********************************************")
     print("test of my flask app runn at {0}".format(SERVER))
@@ -48,5 +64,11 @@ if __name__ == '__main__':
     print("******* count heart failures claims *********")
     for k, v in get_counts('heart_failure').iteritems():
         print("{0}: {1}".format(k, v))
+    print("*********************************************")
+    print("")
+    print("**** get rate of state depression claims ****")
+    depression_rates = get_state_depression()
+    for state in depression_rates['state_depression']:
+        print("{0}: {1}".format(state.keys()[0], state.values()[0]))
     print("*********************************************")
     print("")
