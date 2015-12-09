@@ -79,7 +79,7 @@ def index():
     except (psycopg2.Error, ValueError) as e:
         num_rows = 0
     finally:
-        return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
+        return "Hello MSAN! I can access {0:,d} rows of data!".format(num_rows)
 
 
 @app.route('/api/v1/count/<col>')
