@@ -28,7 +28,7 @@ like so:
 
 ```python
 """Secret RDS password that doesn't get store in Git."""
-rds_pass = "123456abcdefg"  # Change accordingly (RDS)
+rds_pass = "123456abcdefg"  # Change password to your RDS master password
 ```
 
 This will store your password locally. This file **must** be in the *db*
