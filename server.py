@@ -1,3 +1,6 @@
+"""Flask-based JSON API to Medicare claims data: please see the repository
+https://github.com/nsh87/medicare-claims-query-api for more info.
+"""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -145,10 +148,9 @@ def depressed_states():
         for row in result:
             freq = {row['state']: row['frequency']}
             depressed.append(freq)
-        print(depressed)
     except Exception as e:
         return jsonify({'error': e.message})
-    return jsonify(depression_freq=depressed)
+    return jsonify(state_depression=depressed)
 
 
 if __name__ == '__main__':
