@@ -10,10 +10,10 @@ import json
 import urllib2
 
 # Vagrant
-# SERVER = 'http://localhost:7000'
+SERVER = 'http://localhost:7000'
 
 # EC2
-SERVER = 'http://52.32.95.188'
+# SERVER = 'http://52.32.95.188'
 
 
 def get_counts(col):
@@ -36,18 +36,24 @@ def get_counts(col):
     return json.loads(out)
 
 
-def get_state_depression():
+def get_state_disease_freq(disease):
     """
-    Get the frequency of depression claims by state in descending order.
+    Get the frequency of disease claims by state in descending order.
+
+    Parameters
+    ----------
+    disease : str, unicode
+        A disease corresponding to a column name.
 
     Returns
     -------
     list
         A list of dictionaries with state abbreviation as keys and frequency
-        of depression claims as value.
+        of disease claims as value.
     """
     out = dict()
-    response = urllib2.urlopen(SERVER + '/api/v1/depressed_states')
+    print(SERVER + '/api/v1/freq/' + disease)
+    response = urllib2.urlopen(SERVER + '/api/v1/freq/' + disease)
     out = response.read()
     return json.loads(out)
 
@@ -90,7 +96,7 @@ if __name__ == '__main__':
     print("*********************************************")
     print("")
     print("**** get rate of state depression claims ****")
-    depression_rates = get_state_depression()
+    depression_rates = get_state_disease_freq('depression')
     for state in depression_rates['state_depression']:
         print("{0}: {1}".format(state.keys()[0], state.values()[0]))
     print("*********************************************")
