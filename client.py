@@ -1,17 +1,19 @@
+"""Test EC2 JSON api. See https://github.com/nsh87/medicare-claims-query-api
+for more info on the code base.
+"""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
-import urllib2
 import json
+import urllib2
 
-SERVER = 'http://localhost:7000'
+# Vagrant
+# SERVER = 'http://localhost:7000'
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
-if os.path.isfile(os.path.join(current_dir, 'PRODUCTION')):
-    SERVER = 'http://52.32.95.188'
+# EC2
+SERVER = 'http://52.32.95.188'
 
 
 def get_counts(col):

@@ -2,6 +2,9 @@
 
 See https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs/DE_Syn_PUF.html
 for more info on the data.
+
+See https://github.com/nsh87/medicare-claims-query-api for more info on setting
+this up in your own environment.
 """
 from __future__ import absolute_import
 from __future__ import division
