@@ -172,40 +172,66 @@ def get_average(col):
     return jsonify({'average': avg})
 
 
-@app.route('/api/v1/depressed_states')
-def depressed_states():
+@app.route('/api/v1/freq/<col>')
+def disease_frequency(col):
     """
-    Get the states in descending order of the percentage of depression claims.
+    Get the states in descending order of the percentage of disease claims,
+    where disease corresponds to the column name.
+
+    Parameters
+    ----------
+    col : str, unicode
+        A column name.
 
     Returns
     -------
     json
-        A labeled JSON object with the state and percent depression claims out
+        A labeled JSON object with the state and percent disease claims out
         of all of that state's claims.
 
     Examples
     --------
-    /api/v1/depressed_states
+    /api/v1/freq/depression
+    /api/v1/freq/diabetes
     """
-    depressed = []
+    disease = []
+    accepted_cols = (
+        "end_stage_renal_disease",
+        "alzheimers_related_senile",
+        "heart_failure",
+        "chronic_kidney",
+        "cancer",
+        "chronic_obstructive_pulmonary",
+        "depression",
+        "diabetes",
+        "ischemic_heart",
+        "osteoporosis",
+        "rheumatoid_osteo_arthritis",
+        "stroke_ischemic_attack",
+    )
+    # Strip the user input to alpha characters only
+    cleaned_col = re.sub('\W+', '', col)
     try:
+        if cleaned_col not in accepted_cols:
+            return json_error(403,
+                              "column '{0}' is not allowed".format(cleaned_col))
         con, cur = cursor_connect(db_dsn, psycopg2.extras.DictCursor)
         query = """
-        SELECT state, depressed/claims::float AS frequency FROM (SELECT
-        LHS.state AS state, depressed, claims FROM (SELECT state, count(*) AS
+        SELECT state, {1}/claims::float AS frequency FROM (SELECT
+        LHS.state AS state, {1}, claims FROM (SELECT state, count(*) AS
         claims FROM {0} GROUP BY state order by claims desc)
-        AS LHS LEFT JOIN (SELECT state, count(*) AS depressed FROM
-        {0} WHERE depression='true' GROUP BY state) AS RHS
+        AS LHS LEFT JOIN (SELECT state, count(*) AS {1} FROM
+        {0} WHERE {1}='true' GROUP BY state) AS RHS
         ON LHS.state=RHS.state) AS outer_q
-        ORDER by frequency DESC;""".format(TABLE_NAME)
+        ORDER by frequency DESC;""".format(TABLE_NAME, cleaned_col)
         cur.execute(query)
         result = cur.fetchall()
         for row in result:
             freq = {row['state']: row['frequency']}
-            depressed.append(freq)
+            disease.append(freq)
     except Exception as e:
         return jsonify({'error': e.message})
-    return jsonify(state_depression=depressed)
+    return jsonify(state_depression=disease)
 
 
 if __name__ == '__main__':

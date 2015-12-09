@@ -2,6 +2,46 @@
 
 See https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs/DE_Syn_PUF.html
 for more info on the data.
+
+This file is intended to be run during Vagrant or AWS provisioning.
+See https://github.com/nsh87/medicare-claims-query-api for more info on setting
+this up in your own environment.
+
+                 Table "public.beneficiary_sample_2010"
+                 Column                 |         Type         | Modifiers
+----------------------------------------+----------------------+-----------
+ id                                     | character(16)        |
+ dob                                    | date                 |
+ dod                                    | date                 |
+ sex                                    | sex                  |
+ race                                   | race                 |
+ end_stage_renal_disease                | boolean              |
+ state                                  | character varying(4) |
+ county_code                            | integer              |
+ part_a_coverage_months                 | integer              |
+ part_b_coverage_months                 | integer              |
+ hmo_coverage_months                    | integer              |
+ part_d_coverage_months                 | integer              |
+ alzheimers_related_senile              | boolean              |
+ heart_failure                          | boolean              |
+ chronic_kidney                         | boolean              |
+ cancer                                 | boolean              |
+ chronic_obstructive_pulmonary          | boolean              |
+ depression                             | boolean              |
+ diabetes                               | boolean              |
+ ischemic_heart                         | boolean              |
+ osteoporosis                           | boolean              |
+ rheumatoid_osteo_arthritis             | boolean              |
+ stroke_ischemic_attack                 | boolean              |
+ inpatient_reimbursement                | integer              |
+ inpatient_beneficiary_responsibility   | integer              |
+ inpatient_primary_payer_reimbursement  | integer              |
+ outpatient_reimbursement               | integer              |
+ outpatient_beneficiary_responsibility  | integer              |
+ outpatient_primary_payer_reimbursement | integer              |
+ carrier_reimbursement                  | integer              |
+ beneficiary_responsibility             | integer              |
+ primary_payer_reimbursement            | integer              |
 """
 from __future__ import absolute_import
 from __future__ import division
