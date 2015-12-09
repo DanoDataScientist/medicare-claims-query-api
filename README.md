@@ -32,7 +32,7 @@ rds_pass = "123456abcdefg"  # Change password to your RDS master password
 ```
 
 This will store your password locally. This file **must** be in the *db*
-directory in this repo.
+directory in this repo and it **must** be called *rds_password.py*.
 
 Your AWS environment variables should be set up now. You can test that 
 connections to your EC2 instance work with `fab aws ssh`. This will SSH into
@@ -64,11 +64,13 @@ The power of a proper DevOps setup is that you can run the exact same commands
 that provisioned your virtual machine on your EC2 instance to launch the site:
 
 ```bash
-fab aws bootstrap # Provision EC2, clone this repo, and launch web server
+fab aws bootstrap # Provision EC2, clone this repo to EC2, and launch web server
 ```
 
-Your app is now deployed on EC2. A big advantage of the approach here is that
-the data is loaded directly onto your EC2 instance and then copied through
+This uses the *aws()_* environment definition in *fabfile.py* to connect to
+EC2 and run any of the functions called in *bootstrap()*. Your app is now 
+deployed on EC2. A big advantage of the approach here is that
+the data is loaded downloaded onto your EC2 instance and then copied through
 Amazon's local network to RDS. Data is never transferred from your computer
 to RDS, so setting up the DB is fast.
 
