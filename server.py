@@ -7,7 +7,7 @@ import locale
 import os
 
 import psycopg2
-from flask import Flask
+from flask import Flask, jsonify
 
 from core.utilities import cursor_connect
 from db import config as dbconfig
@@ -28,7 +28,17 @@ except ValueError:
 
 
 @app.route('/')
-def hello_world():
+def index():
+    """
+    Main page with no JSON API, just a short message about number of rows
+    available.
+
+    Returns
+    -------
+    str
+        A short message saying hello and then displaying the number of rows
+        available to query.
+    """
     num_rows = 0  # Default value
     try:
         con, cur = cursor_connect(db_dsn)
@@ -41,6 +51,29 @@ def hello_world():
     finally:
         return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
 
+
+@app.route('/api/v1/count/sex')
+def get_male_female_counts():
+    """
+    Get the counts of claims from males and females.
+
+    Returns
+    -------
+    json
+        The male
+    """
+    return jsonify()
+    count = {}
+    try:
+        con, cur = cursor_connect(db_dsn)
+        sql = "SELECT COUNT(*) FROM {0} WHERE sex='male'".format(TABLE_NAME)
+        cur.execute(sql)
+        result = cur.fetchone()
+        count['male'] = int(result[0])
+    except (psycopg2.Error, ValueError) as e:
+        return jsonify({'error': e.message})
+    finally:
+        return jsonify(count)
 
 if __name__ == '__main__':
     # NOTE: anything you put here won't get picked up in production
