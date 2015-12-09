@@ -101,6 +101,12 @@ if __name__ == '__main__':
         print("{0}: {1}".format(state.keys()[0], state.values()[0]))
     print("*********************************************")
     print("")
+    print("********** get most diabetic states *********")
+    diabetes_rates = get_state_disease_freq('diabetes')
+    for state in diabetes_rates['state_depression']:
+        print("{0}: {1}".format(state.keys()[0], state.values()[0]))
+    print("*********************************************")
+    print("")
     print("****** average inpatient reimbursement ******")
     reimb = get_avg_col('inpatient_reimbursement')
     print("{0}: {1}".format(reimb.keys()[0], reimb.values()[0]))
@@ -115,3 +121,8 @@ if __name__ == '__main__':
     reimb = get_avg_col('beneficiary_responsibility')
     print("{0}: {1}".format(reimb.keys()[0], reimb.values()[0]))
     print("*********************************************")
+    print("")
+    print("The data is synthetic: a 5% sample from actual 2010 Medicare\n"
+          "beneficiary data. The columns were sampled independently,\n"
+          "so multivariate analysis is not advised since it could lead\n"
+          "to false conclusions.")
