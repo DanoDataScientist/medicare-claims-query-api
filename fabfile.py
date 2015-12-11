@@ -4,7 +4,7 @@ import subprocess
 
 from fabric.api import run, sudo, put, env, require, local, settings
 
-from db import config as dbconfig
+from db import config as awsconfig
 
 # Location of Git repo to clone project from
 GIT_ORIGIN = "https://github.com"
@@ -60,14 +60,14 @@ def vagrant():
     env.git_repo = GIT_REPO
     env.dev_mode = True
     env.settings = 'vagrant'
-    env.dbhost = dbconfig.vagrant_dbhost
-    env.dbname = dbconfig.vagrant_dbname
-    env.dbuser = dbconfig.vagrant_dbuser
-    env.dbpass = dbconfig.vagrant_dbpass
+    env.dbhost = awsconfig.vagrant_dbhost
+    env.dbname = awsconfig.vagrant_dbname
+    env.dbuser = awsconfig.vagrant_dbuser
+    env.dbpass = awsconfig.vagrant_dbpass
 
 
 def aws():
-    env.hosts = ['52.32.95.188']  # Change accordingly (EC2)
+    env.hosts = awsconfig.ec2_host
     env.repo = ('env.medicare-api.com', 'origin', 'production')
     env.virtualenv, env.parent, env.branch = env.repo
     env.base = '/server'
@@ -75,13 +75,12 @@ def aws():
     env.git_origin = GIT_ORIGIN
     env.git_repo = GIT_REPO
     env.dev_mode = False
-    pem = os.path.join('/', 'Users', 'Nikhil', '.ssh', 'aws.pem')  # Change
-    env.key_filename = pem
+    env.key_filename = awsconfig.ec2_pem
     env.settings = 'production'
-    env.dbhost = dbconfig.rds_dbhost
-    env.dbname = dbconfig.rds_dbname
-    env.dbuser = dbconfig.rds_dbuser
-    env.dbpass = dbconfig.rds_dbpass
+    env.dbhost = awsconfig.rds_dbhost
+    env.dbname = awsconfig.rds_dbname
+    env.dbuser = awsconfig.rds_dbuser
+    env.dbpass = awsconfig.rds_dbpass
 
 
 def ssh():
