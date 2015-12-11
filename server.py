@@ -79,7 +79,43 @@ def index():
     except (psycopg2.Error, ValueError) as e:
         num_rows = 0
     finally:
-        return "Hello World! I can access {0:,d} rows of data!".format(num_rows)
+        html = """
+        <html>
+        <body>
+        <div>
+            <p>Hello World! I can access {0:,d} rows of data!</p>
+            <p>The data is from the 2010 Medicare synthetic claims summary.</p>
+            <p>Number of claims by sex:
+                <a href="/api/v1/count/sex">/api/v1/count/sex</a>
+            </p>
+            <p>Number of cancer claims:
+                <a href="/api/v1/count/cancer">/api/v1/count/cancer</a>
+            </p>
+            <p>Average inpatient reimbursement amount:
+                <a href="/api/v1/average/inpatient_reimbursement">
+                    /api/v1/average/inpatient_reimbursement</a>
+            </p>
+            <p>Average outpatient reimbursement amount:
+                <a href="/api/v1/average/outpatient_reimbursement">
+                    /api/v1/average/outpatient_reimbursement</a>
+            </p>
+            <p>Average beneficiary responsibility:
+                <a href="/api/v1/average/beneficiary_responsibility">
+                    /api/v1/average/beneficiary_responsibility</a>
+            </p>
+            <p>Get frequency of depression claims by state:
+                <a href="/api/v1/freq/depression">
+                    /api/v1/freq/depression</a>
+            </p>
+            <p>Get frequency of cancer claims by state:
+                <a href="/api/v1/freq/cancer">
+                    /api/v1/freq/cancer</a>
+            </p>
+        </div>
+        </body>
+        </html>
+        """.format(num_rows)
+        return html
 
 
 @app.route('/api/v1/count/<col>')
