@@ -70,7 +70,7 @@ fab aws bootstrap # Provision EC2, clone this repo to EC2, and launch web server
 This uses the *aws()_* environment definition in *fabfile.py* to connect to
 EC2 and run any of the functions called in *bootstrap()*. Your app is now 
 deployed on EC2. A big advantage of the approach here is that
-the data is loaded downloaded onto your EC2 instance and then copied through
+the data is downloaded onto your EC2 instance and then copied through
 Amazon's local network to RDS. Data is never transferred from your computer
 to RDS, so setting up the DB is fast.
 
